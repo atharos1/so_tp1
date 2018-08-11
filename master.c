@@ -1,4 +1,8 @@
 #include "master.h"
+#include "sysvmq.h"
+
+#define MASTER_QUEUE_ID 1
+#define SLAVE_QUEUE_ID 2
 
 int main(int argc, const char ** argv) {
     if (argc <= 1) { //Argument zero is the program name
@@ -16,7 +20,10 @@ void run(int argc, const char ** argv) {
 
     key_t queue_key = ftok("./master",ID);
 
-    create_queue(number_files, queue_key);
+    if(queue_create(queue_key) < 0) {
+        perror("Couldn't create message queue. Aborting.");
+        die(1);
+    }
 
     number_files = post_files(number_files, argc, argv, parameters_offset, queue_key);
 
@@ -39,7 +46,7 @@ int post_files(int number_files, int argc, const char ** argv, int parameters_of
 
     for (int i=parameters_offset; i<argc; i++) {
         if (is_reg_file(argv[i])) {
-            //post_file(argv[i], strlen(argv[i]), queue_key); (DE LA LIBRERIA DE MESSAGE QUEUES)
+            queue_post(queue_key, argv[i], SLAVE_QUEUE_ID);
             files_posted ++;
         } else {
             printf("\'%s\' is not a regular file. It was ignored.\n\n", argv[i]);
