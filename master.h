@@ -18,6 +18,6 @@ int slave_number_calc(int number_files);
 int create_slaves(int number_files);
 
 void run(int argc, const char ** argv);
-int post_files(int number_files, int argc, const char ** argv, int parameters_offset, key_t queue_key);
+int post_files(int number_files, int argc, const char ** argv, int parameters_offset);
 
 #endif

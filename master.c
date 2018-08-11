@@ -1,9 +1,11 @@
 #include "master.h"
 #include "sysvmq.h"
 
+int queue_id;
+
 int main(int argc, const char ** argv) {
     if (argc <= 1) { //Argument zero is the program name
-        printf("Error. Program should receive at least one argument.\n\nExiting program..\n");
+        perror("Error. Program should receive at least one argument.\n\nExiting program..\n");
         exit(-1);
     } else {
         printf("Hashing starting..\n\n");
@@ -17,15 +19,15 @@ void run(int argc, const char ** argv) {
 
     key_t queue_key = ftok("./master",ID);
 
-    if (queue_create(queue_key) < 0) {
-        perror("Couldn't create message queue.\n\nExiting program..\n");
-        die(1);
+    if (queue_id = queue_create(queue_key) < 0) {
+        perror("Could not create message queue.\n\nExiting program..\n");
+        exit(-1);
     }
 
-    number_files = post_files(number_files, argc, argv, parameters_offset, queue_key);
+    number_files = post_files(number_files, argc, argv, parameters_offset);
 
     if (number_files <= 0) {
-        printf("Error. No files are hashable.\n\nExiting program..\n");
+        perror("Error. No files are hashable.\n\nExiting program..\n");
         exit(-1);
     }
 
@@ -37,7 +39,7 @@ void run(int argc, const char ** argv) {
     struct message msg;
 
     while (files_processed < number_files) {
-        if (queue_read(queue_key, &msg, MASTER_QUEUE_ID, 0, 0) < 0) {
+        if (queue_read(queue_id, &msg, MASTER_QUEUE_ID, 0, 0) < 0) {
             //Error de lectura
         }
 
@@ -49,12 +51,12 @@ void run(int argc, const char ** argv) {
 
 }
 
-int post_files(int number_files, int argc, const char ** argv, int parameters_offset, key_t queue_key) {
+int post_files(int number_files, int argc, const char ** argv, int parameters_offset) {
     int files_posted = 0;
 
     for (int i = parameters_offset; i < argc; i++) {
         if (is_reg_file(argv[i])) {
-            queue_post(queue_key, argv[i], SLAVE_QUEUE_ID);
+            queue_post(queue_id, argv[i], SLAVE_QUEUE_ID);
             files_posted ++;
         } else {
             printf("\'%s\' is not a regular file. It was ignored.\n\n", argv[i]);
