@@ -1,9 +1,6 @@
 #include "master.h"
 #include "sysvmq.h"
 
-#define MASTER_QUEUE_ID 1
-#define SLAVE_QUEUE_ID 2
-
 int main(int argc, const char ** argv) {
     if (argc <= 1) { //Argument zero is the program name
         printf("Error. Program should receive at least one argument.\n\nExiting program..\n");
@@ -20,8 +17,8 @@ void run(int argc, const char ** argv) {
 
     key_t queue_key = ftok("./master",ID);
 
-    if(queue_create(queue_key) < 0) {
-        perror("Couldn't create message queue. Aborting.");
+    if (queue_create(queue_key) < 0) {
+        perror("Couldn't create message queue.\n\nExiting program..\n");
         die(1);
     }
 
@@ -39,8 +36,8 @@ void run(int argc, const char ** argv) {
     int files_processed = 0;
     struct message msg;
 
-    while(files_processed < number_files) {
-        if(queue_read(queue_key, &msg, MASTER_QUEUE_ID, 0, 0) < 0) {
+    while (files_processed < number_files) {
+        if (queue_read(queue_key, &msg, MASTER_QUEUE_ID, 0, 0) < 0) {
             //Error de lectura
         }
 
@@ -55,7 +52,7 @@ void run(int argc, const char ** argv) {
 int post_files(int number_files, int argc, const char ** argv, int parameters_offset, key_t queue_key) {
     int files_posted = 0;
 
-    for (int i=parameters_offset; i<argc; i++) {
+    for (int i = parameters_offset; i < argc; i++) {
         if (is_reg_file(argv[i])) {
             queue_post(queue_key, argv[i], SLAVE_QUEUE_ID);
             files_posted ++;
@@ -76,19 +73,19 @@ int create_slaves(int number_files) {
     int number_slaves = slave_number_calc(number_files);
 
     char * dummyArgs[] = {""};
-    int pid;
+    pid_t pid;
 
-    for(int i = 0; i < number_slaves; i++) {
+    for (int i = 0; i < number_slaves; i++) {
         pid = fork();
-
-        if(pid < 0) {
+        printf("cree slave\n");
+        if (pid < 0) {
             perror("Error creating child process");
             kill_slaves();
             exit(1);
         }
 
-        if(pid != 0) {
-            execv("slave", dummyArgs);
+        if (pid == 0) {
+            execv("./slave", dummyArgs);
         }
     }
 

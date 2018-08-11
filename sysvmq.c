@@ -33,3 +33,7 @@ int queue_create(key_t key) {
 int queue_get(key_t key) {
 	return msgget(key, 0666 );
 }
+
+int queue_is_empty(key_t key) {
+ //??
+}
