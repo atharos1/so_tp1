@@ -32,12 +32,23 @@ void run(int argc, const char ** argv) {
         exit(-1);
     }
 
-    create_slaves(number_files);
+    int number_slaves = create_slaves(number_files);
 
-    // hacer algo mientras le vayan llegando los hashes y se los pase a la vista
-}
+    
+    //listen
+    int files_processed = 0;
+    struct message msg;
 
-void create_queue(int number_files, key_t queue_key) {
+    while(files_processed < number_files) {
+        if(queue_read(queue_key, &msg, MASTER_QUEUE_ID, 0, 0) < 0) {
+            //Error de lectura
+        }
+
+        //Recuperar el mensaje y enviarlo a la view
+
+    }
+
+    //Avisar a la view que terminamos
 
 }
 
@@ -61,13 +72,36 @@ int is_reg_file(const char * path) {
     return S_ISREG(path_stat.st_mode);
 }
 
-void create_slaves(int number_files) {
+int create_slaves(int number_files) {
     int number_slaves = slave_number_calc(number_files);
 
-    // crear los slaves
+    char * dummyArgs[] = {""};
+    int pid;
+
+    for(int i = 0; i < number_slaves; i++) {
+        pid = fork();
+
+        if(pid < 0) {
+            perror("Error creating child process");
+            kill_slaves();
+            exit(1);
+        }
+
+        if(pid != 0) {
+            execv("slave", dummyArgs);
+        }
+    }
+
+    return number_slaves;
 }
 
 int slave_number_calc(int number_files) {
+    int files_slaves_ratio = 10;
+    int limit = 10;
+    int div = number_files / files_slaves_ratio;
 
-    // algun calculo inventado dependiendo de la cantidad de files
+    if(div <= limit)
+        return div;
+    else
+        return limit;
 }

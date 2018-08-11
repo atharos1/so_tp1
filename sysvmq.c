@@ -8,9 +8,9 @@ int queue_post(int queue_id, char * message, int type) {
     return msgsnd(queue_id, &msg, len, IPC_NOWAIT);
 }
 
-int queue_read(int queue_id, struct message * msg, int type, int wait, int incremental) {
+int queue_read(int queue_id, struct message * msg, int type, int nowait, int incremental) {
     int flags = 0;
-    if( wait == 1 )
+    if( nowait == 1 )
         flags = flags | IPC_NOWAIT;
     //if( incremental == 1 )
     //    flags = flags | MSG_EXCEPT;

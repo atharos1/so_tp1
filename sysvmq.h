@@ -13,7 +13,7 @@ struct message {
 };
 
 int queue_post(int queue_id, char * message, int type);
-int queue_read(int queue_id, struct message * msg, int type, int wait, int incremental);
+int queue_read(int queue_id, struct message * msg, int type, int nowait, int incremental);
 int queue_peek(int queue_id, struct message * msg, int type, int incremental);
 int queue_create(key_t key);
 int queue_get(key_t key);
