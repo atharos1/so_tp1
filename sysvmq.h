@@ -4,6 +4,7 @@
 #include <sys/types.h>
 #include <sys/ipc.h>
 #include <sys/msg.h>
+#include <string.h>
 
 #define MSG_MAX_LENGHT 128
 
