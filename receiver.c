@@ -4,14 +4,14 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#define MSG_MAX_LENGHT 128
+#define MSG_MAX_LENGTH 128
 
 void die(char * message);
 int queue_get(key_t key);
 
 struct message {
     long type;
-    char text[MSG_MAX_LENGHT];
+    char text[MSG_MAX_LENGTH];
 };
 
 int main() {
@@ -22,7 +22,7 @@ int main() {
 
 	int flag = 0;
 	while(flag == 0) {
-		if (msgrcv(queue_id, &msg, MSG_MAX_LENGHT, 0, 0) < 0)
+		if (msgrcv(queue_id, &msg, MSG_LENGHT, 0, 0) < 0)
       		die("Error leyendo el mensaje");
 
       	if(msg.type == 2) { //Salir

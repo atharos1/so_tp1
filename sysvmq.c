@@ -1,6 +1,6 @@
 #include "sysvmq.h"
 
-int queue_post(int queue_id, char * message, int type) {
+int queue_post(int queue_id, const char * message, int type) {
     int len = strlen(message)+1;
     struct message msg;
     msg.type = type;
@@ -15,7 +15,7 @@ int queue_read(int queue_id, struct message * msg, int type, int nowait, int inc
     //if( incremental == 1 )
     //    flags = flags | MSG_EXCEPT;
 
-    return msgrcv(queue_id, msg, MSG_MAX_LENGHT, type, flags);
+    return msgrcv(queue_id, msg, MSG_MAX_LENGTH, type, flags);
 }
 
 int queue_peek(int queue_id, struct message * msg, int type, int incremental) {
@@ -23,7 +23,7 @@ int queue_peek(int queue_id, struct message * msg, int type, int incremental) {
     //if( incremental == 1 )
     //    flags = flags | MSG_EXCEPT;
 
-    //return msgrcv(queue_id, msg, MSG_MAX_LENGHT, type, flags);
+    //return msgrcv(queue_id, msg, MSG_MAX_LENGTH, type, flags);
     return 0;
 }
 
@@ -34,7 +34,3 @@ int queue_create(key_t key) {
 int queue_get(key_t key) {
 	return msgget(key, 0666 );
 }
-
-//int queue_is_empty(key_t key) {
- //??
-//}

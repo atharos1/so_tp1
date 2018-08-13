@@ -20,7 +20,7 @@ void run(int argc, const char ** argv) {
     key_t queue_key = ftok("./master",ID);
 
     if (queue_id = queue_create(queue_key) < 0) {
-        perror("Could not create message queue.\n\nExiting program..\n");
+        perror("Error. Could not create message queue.\n\nExiting program..\n");
         exit(-1);
     }
 
@@ -102,7 +102,7 @@ int slave_number_calc(int number_files) {
     int limit = 10;
     int div = number_files / files_slaves_ratio + 1;
 
-    if(div <= limit)
+    if (div <= limit)
         return div;
     else
         return limit;
