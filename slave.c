@@ -20,7 +20,6 @@ int main(int argc, const char ** argv) {
             printf("Null message\n");
         } else {
             calculate_MD5(msg.text, buffer);
-            printf("termino de calcular\n");
             queue_post(queue_id, buffer, MASTER_QUEUE_ID);
         }
     }
@@ -29,7 +28,7 @@ int main(int argc, const char ** argv) {
 
 int calculate_MD5(const char * path, char * buffer) {
 
-    char command[sizeof("md5sum %s") + sizeof(path)];
+    char command[strlen("md5sum %s") + strlen(path)];
     sprintf(command,"md5sum %s",path);
 
     FILE * fp = popen(command,"r");
