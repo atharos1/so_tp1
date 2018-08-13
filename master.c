@@ -40,13 +40,14 @@ void run(int argc, const char ** argv) {
     while (files_processed < number_files) {
 
         if (queue_read(queue_id, &msg, MASTER_QUEUE_ID, 0, 0) < 0) {
-            //Error de lectura
+           //Error de lectura
         }
+        // prueba para ver si llega bien
+	    printf("%s\n", msg.text);
 
-	printf("%s\n", msg.text);
+        //enviar msg.text a la view
 
-        //Recuperar el mensaje y enviarlo a la view
-	files_processed++;
+	    files_processed++;
     }
 
     //Avisar a la view que terminamos
@@ -81,7 +82,6 @@ int create_slaves(int number_files) {
 
     for (int i = 0; i < number_slaves; i++) {
         pid = fork();
-        printf("Cree proceso %d\n", pid);
 
         if (pid < 0) {
             perror("Error creating child process");
@@ -90,6 +90,8 @@ int create_slaves(int number_files) {
         }
 
         if (pid == 0) {
+            // para probar
+            printf("Cree proceso %u\n", getpid());
             execv("./slave", dummyArgs);
         }
     }

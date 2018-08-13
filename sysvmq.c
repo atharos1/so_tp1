@@ -18,15 +18,6 @@ int queue_read(int queue_id, struct message * msg, int type, int nowait, int inc
     return msgrcv(queue_id, msg, MSG_MAX_LENGTH, type, flags);
 }
 
-int queue_peek(int queue_id, struct message * msg, int type, int incremental) {
-    //int flags = IPC_NOWAIT | MSG_COPY;
-    //if( incremental == 1 )
-    //    flags = flags | MSG_EXCEPT;
-
-    //return msgrcv(queue_id, msg, MSG_MAX_LENGTH, type, flags);
-    return 0;
-}
-
 int queue_create(key_t key) {
 	return msgget(key, IPC_CREAT | 0666 );
 }
