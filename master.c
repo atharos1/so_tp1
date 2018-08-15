@@ -8,7 +8,7 @@ int main(int argc, const char ** argv) {
         perror("Error. Program should receive at least one argument.\n\nExiting program..\n");
         exit(-1);
     } else {
-        printf("Hashing starting..\n\n");
+        printf("\nHashing starting..\n\n");
         run(argc,argv);
     }
 }
@@ -35,21 +35,25 @@ void run(int argc, const char ** argv) {
 
     //listen
     int files_processed = 0;
+    FILE * hashes = fopen("./Hashes.txt","a"); //"a" for appending at the end of file
     struct message msg;
 
     while (files_processed < number_files) {
 
         if (queue_read(queue_id, &msg, MASTER_QUEUE_ID, 0, 0) < 0) {
-           //Error de lectura
+           perror("Error. Could not read hash from message queue.\n\n");
+           //deberiamos hacer exit aca o que siga con los demas?
         }
-        // prueba para ver si llega bien
-	    printf("%s\n", msg.text);
+        // write hash into hashes file
+	    fprintf(hashes, "%s\n", msg.text);
 
         //enviar msg.text a la view
 
 	    files_processed++;
     }
 
+    fclose(hashes);
+    printf("Hashes written to \'./Hashes.txt\'\n");
     //Avisar a la view que terminamos
 
 }
@@ -90,8 +94,6 @@ int create_slaves(int number_files) {
         }
 
         if (pid == 0) {
-            // para probar
-            printf("Cree proceso %u\n", getpid());
             execv("./slave", dummyArgs);
         }
     }
