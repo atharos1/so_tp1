@@ -35,7 +35,7 @@ void run(int argc, const char ** argv) {
 
     //listen
     int files_processed = 0;
-    FILE * hashes = fopen("./Hashes.txt","a"); //"a" for appending at the end of file
+    FILE * hashes = fopen("./Hashes/Hashes.txt","a"); //"a" for appending at the end of file
     struct message msg;
 
     while (files_processed < number_files) {
@@ -53,7 +53,7 @@ void run(int argc, const char ** argv) {
     }
 
     fclose(hashes);
-    printf("Hashes written to \'./Hashes.txt\'\n");
+    printf("Hashes written to \'./Hashes/Hashes.txt\'\n");
     //Avisar a la view que terminamos
 
 }

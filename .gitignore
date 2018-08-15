@@ -66,4 +66,8 @@ fabric.properties
 
 CMakeLists.txt
 
+Hashes.txt
+master
+slave
+
 \.vscode/
