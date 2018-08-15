@@ -1,7 +1,5 @@
 #include "test_library.h"
 
-void given_nothing() {}
-
 void check_is_not_null(void * pointer) {
     if (pointer == NULL) {
         failed("Expected: a not null pointer.\nReceived: a null pointer.");
