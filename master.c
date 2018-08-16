@@ -102,8 +102,8 @@ int create_slaves(int number_files) {
         if (pid == 0)  {
 	    dup2(fd1[READ], 0);
 	    dup2(fd2[WRITE], 1);
-	    //close(fd1[WRITE]);
-	    //close(fd2[READ]);
+	    close(fd1[WRITE]);
+	    close(fd2[READ]);
             execv("./slave", dummyArgs);
         }
     }

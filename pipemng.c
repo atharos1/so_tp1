@@ -1,6 +1,6 @@
 #include "pipemng.h"
 
-int PipeWrite(int fd, char * str) {
+int PipeWrite(int fd, const char * str) {
   return write(fd, str, strlen(str)+1);
 }
 
