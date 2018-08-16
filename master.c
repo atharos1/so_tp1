@@ -30,7 +30,6 @@ void run(int argc, const char ** argv) {
     }
 
     sh_mem * shmAddress = (sh_mem *) createSharedMemory();
-    printf("%d\n", getpid());
 
     int number_slaves = create_slaves(number_files);
 
@@ -129,7 +128,7 @@ char * createSharedMemory() {
     int shmId;
     char * shmAddress;
 
-    if ((shmId = shmget(getpid(), SHMSZ, IPC_CREAT | 0666)) < 0) {
+    if ((shmId = shmget(shm_key, SHMSZ, IPC_CREAT | 0666)) < 0) {
         perror("Failed to create shared memory.\n");
         exit(-1);
     }
