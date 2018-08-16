@@ -1,7 +1,9 @@
 #include "master.h"
-#include "sysvmq.h"
+#include "pipemng.h"
 
-int queue_id;
+//int queue_id;
+int fd1[2];
+int fd2[2];
 
 int main(int argc, const char ** argv) {
     if (argc <= 1) { //Argument zero is the program name
@@ -17,12 +19,8 @@ void run(int argc, const char ** argv) {
     int parameters_offset = 1;
     int number_files = argc - parameters_offset;
 
-    key_t queue_key = ftok("./master",ID);
-
-    if (queue_id = queue_create(queue_key) < 0) {
-        perror("Error. Could not create message queue.\n\nExiting program..\n");
-        exit(-1);
-    }
+    pipe(fd1);
+    pipe(fd2);
 
     number_files = post_files(number_files, argc, argv, parameters_offset);
 
@@ -35,17 +33,24 @@ void run(int argc, const char ** argv) {
 
     //listen
     int files_processed = 0;
-    FILE * hashes = fopen("./Hashes/Hashes.txt","a"); //"a" for appending at the end of file
-    struct message msg;
+    FILE * hashes = fopen("./Hashes.txt","a"); //"a" for appending at the end of file
+    char str[2000];
+
+    //close(fd2[WRITE]);
+
+    //PipeWrite(fd2[WRITE], "HOLA");
 
     while (files_processed < number_files) {
 
-        if (queue_read(queue_id, &msg, MASTER_QUEUE_ID, 0, 0) < 0) {
-           perror("Error. Could not read hash from message queue.\n\n");
-           //deberiamos hacer exit aca o que siga con los demas?
-        }
+        //puts("hola jorge\n");
+        
+        PipeRead(fd2[READ], str);
+
+	//printf("Alguna boludez\n");
+        
         // write hash into hashes file
-	    fprintf(hashes, "%s\n", msg.text);
+	    fprintf(hashes, "%s\n", str);
+	    printf("%s\n", str);
 
         //enviar msg.text a la view
 
@@ -53,17 +58,18 @@ void run(int argc, const char ** argv) {
     }
 
     fclose(hashes);
-    printf("Hashes written to \'./Hashes/Hashes.txt\'\n");
+    printf("Hashes written to \'./Hashes.txt\'\n");
     //Avisar a la view que terminamos
 
 }
 
 int post_files(int number_files, int argc, const char ** argv, int parameters_offset) {
     int files_posted = 0;
+    char buff[500];
 
     for (int i = parameters_offset; i < argc; i++) {
         if (is_reg_file(argv[i])) {
-            queue_post(queue_id, argv[i], SLAVE_QUEUE_ID);
+	    PipeWrite(fd1[WRITE], argv[i]);
             files_posted++;
         } else {
             printf("\'%s\' is not a regular file. It was ignored.\n\n", argv[i]);
@@ -93,7 +99,11 @@ int create_slaves(int number_files) {
             exit(1);
         }
 
-        if (pid == 0) {
+        if (pid == 0)  {
+	    dup2(fd1[READ], 0);
+	    dup2(fd2[WRITE], 1);
+	    //close(fd1[WRITE]);
+	    //close(fd2[READ]);
             execv("./slave", dummyArgs);
         }
     }

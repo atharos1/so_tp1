@@ -12,6 +12,8 @@
 #define ID 57526
 #define MASTER_QUEUE_ID 1
 #define SLAVE_QUEUE_ID 2
+#define READ 0
+#define WRITE 1
 
 int is_reg_file(const char * path);
 int slave_number_calc(int number_files);

@@ -5,10 +5,10 @@
 #include <stdlib.h>
 #include <ctype.h>
 
-#define ID 57526
-#define MASTER_QUEUE_ID 1
-#define SLAVE_QUEUE_ID 2
-#define BUFFER_SIZE (FILENAME_MAX + MD5_LENGTH)
+#define MD5_LENGTH 32
+#define BUFFER_SIZE 900
+#define READ 0
+#define WRITE 1
 
 int calculate_MD5(const char * path, char * buffer);
 
