@@ -29,6 +29,9 @@ void run(int argc, const char ** argv) {
         exit(-1);
     }
 
+    sh_mem * shmAddress = (sh_mem *) createSharedMemory();
+    printf("%d\n", getpid());
+
     int number_slaves = create_slaves(number_files);
 
     //listen
@@ -120,4 +123,21 @@ int slave_number_calc(int number_files) {
         return div;
     else
         return limit;
+}
+
+char * createSharedMemory() {
+    int shmId;
+    char * shmAddress;
+
+    if ((shmId = shmget(getpid(), SHMSZ, IPC_CREAT | 0666)) < 0) {
+        perror("Failed to create shared memory.\n");
+        exit(-1);
+    }
+
+    if ((shmAddress = shmat(shmId, NULL, 0)) == (char *) -1) {
+        perror("Failed to attach segment to data space.\n");
+        exit(-1);
+    }
+
+    return shmAddress;
 }

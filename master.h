@@ -8,6 +8,9 @@
 #include <sys/ipc.h>
 #include <sys/stat.h>
 #include <unistd.h>
+#include <sys/shm.h>
+#include <semaphore.h>
+#include "shm.h"
 
 #define ID 57526
 #define MASTER_QUEUE_ID 1
@@ -21,5 +24,7 @@ int create_slaves(int number_files);
 
 void run(int argc, const char ** argv);
 int post_files(int number_files, int argc, const char ** argv, int parameters_offset);
+
+char * createSharedMemory();
 
 #endif
