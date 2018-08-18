@@ -33,7 +33,7 @@ void run(int argc, char ** argv) {
 
     sem_t * sem = sem_open (SEM_NAME, O_CREAT | O_EXCL, 0644, 0); 
     if(sem == SEM_FAILED) {
-        perror("Semaforo no se puede inicializar");
+        perror("Error. Semaphore could not be initialized.");
         shm->status = 0; //No usemos la memoria compartida, no puedo sincronizar
     }
 
@@ -90,20 +90,22 @@ int post_files(int number_files, int argc, char ** argv, int parameters_offset) 
     char buff[500];
 
     for (int i = parameters_offset; i < argc; i++) {
-        if (is_reg_file(argv[i])) {
+        if (valid(argv[i])) {
 	    PipeWrite(fd1[WRITE], argv[i]);
             files_posted++;
         } else {
-            printf("\'%s\' is not a regular file. It was ignored.\n\n", argv[i]);
+            printf("\'%s\' was ignored.\n\n", argv[i]);
         }
     }
     return files_posted;
 }
 
-int is_reg_file(char * path) {
+int valid(char * path) {
     struct stat path_stat;
-    stat(path, &path_stat);
-    return S_ISREG(path_stat.st_mode);
+    if (stat(path, &path_stat) == 0) { //success
+        return S_ISREG(path_stat.st_mode);
+    } else
+        return -1;
 }
 
 int create_slaves(int number_files) {

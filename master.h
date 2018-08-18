@@ -20,7 +20,7 @@
 #define READ 0
 #define WRITE 1
 
-int is_reg_file(char * path);
+int valid(char * path);
 int slave_number_calc(int number_files);
 int create_slaves(int number_files);
 
