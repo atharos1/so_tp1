@@ -1,11 +1,13 @@
 #include "master.h"
 #include "pipemng.h"
+#include "protocol.h"
+#include <semaphore.h>
 
 //int queue_id;
 int fd1[2];
 int fd2[2];
 
-int main(int argc, const char ** argv) {
+int main(int argc, char ** argv) {
     if (argc <= 1) { //Argument zero is the program name
         perror("Error. Program should receive at least one argument.\n\nExiting program..\n");
         exit(-1);
@@ -15,9 +17,27 @@ int main(int argc, const char ** argv) {
     }
 }
 
-void run(int argc, const char ** argv) {
+void run(int argc, char ** argv) {
     int parameters_offset = 1;
     int number_files = argc - parameters_offset;
+
+    int fd = shm_open(NAME, O_CREAT | O_EXCL | O_RDWR, 0600);
+    if (fd < 0) {
+        perror("shm_open()");
+    }
+    ftruncate(fd, SIZE);
+    sh_mem *shm = (sh_mem *)mmap(0, SIZE, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
+    shm->status = 1;
+    shm->currReadLine = 0;
+    shm->currWriteLine = 0;
+
+    sem_t * sem = sem_open (SEM_NAME, O_CREAT | O_EXCL, 0644, 0); 
+    if(sem == SEM_FAILED) {
+        perror("Semaforo no se puede inicializar");
+        shm->status = 0; //No usemos la memoria compartida, no puedo sincronizar
+    }
+
+    sleep(3); //Le damos tiempo a la vista para que se conecte
 
     pipe(fd1);
     pipe(fd2);
@@ -29,8 +49,6 @@ void run(int argc, const char ** argv) {
         exit(-1);
     }
 
-    sh_mem * shmAddress = (sh_mem *) createSharedMemory();
-
     int number_slaves = create_slaves(number_files);
 
     //listen
@@ -38,34 +56,36 @@ void run(int argc, const char ** argv) {
     FILE * hashes = fopen("./Hashes.txt","a"); //"a" for appending at the end of file
     char str[2000];
 
-    //close(fd2[WRITE]);
-
-    //PipeWrite(fd2[WRITE], "HOLA");
-
-    while (files_processed < number_files) {
-
-        //puts("hola jorge\n");
-        
-        PipeRead(fd2[READ], str);
-
-	//printf("Alguna boludez\n");
-        
-        // write hash into hashes file
+    while (files_processed < number_files) {        
+        PipeRead(fd2[READ], str);        
 	    fprintf(hashes, "%s\n", str);
-	    printf("%s\n", str);
 
-        //enviar msg.text a la view
+        strcpy(shm->str[shm->currWriteLine], str);
+        shm->currWriteLine++;
+        sem_post(sem); //Incremento el semáforo
 
+	    //printf("%s\n", str);
 	    files_processed++;
     }
 
+    shm->status = 2;
+
     fclose(hashes);
     printf("Hashes written to \'./Hashes.txt\'\n");
+
     //Avisar a la view que terminamos
+    int view_connected = (shm->currReadLine > 0);
+
+    munmap(shm, SIZE);
+    close(fd);
+    sem_unlink(SEM_NAME);
+
+    if(!view_connected)
+        shm_unlink(NAME);
 
 }
 
-int post_files(int number_files, int argc, const char ** argv, int parameters_offset) {
+int post_files(int number_files, int argc, char ** argv, int parameters_offset) {
     int files_posted = 0;
     char buff[500];
 
@@ -80,7 +100,7 @@ int post_files(int number_files, int argc, const char ** argv, int parameters_of
     return files_posted;
 }
 
-int is_reg_file(const char * path) {
+int is_reg_file(char * path) {
     struct stat path_stat;
     stat(path, &path_stat);
     return S_ISREG(path_stat.st_mode);
@@ -122,21 +142,4 @@ int slave_number_calc(int number_files) {
         return div;
     else
         return limit;
-}
-
-char * createSharedMemory() {
-    int shmId;
-    char * shmAddress;
-
-    if ((shmId = shmget(shm_key, SHMSZ, IPC_CREAT | 0666)) < 0) {
-        perror("Failed to create shared memory.\n");
-        exit(-1);
-    }
-
-    if ((shmAddress = shmat(shmId, NULL, 0)) == (char *) -1) {
-        perror("Failed to attach segment to data space.\n");
-        exit(-1);
-    }
-
-    return shmAddress;
 }
