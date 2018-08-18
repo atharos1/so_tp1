@@ -11,13 +11,27 @@ int main(int argc, char ** argv) {
     if (argc <= 1) { //Argument zero is the program name
         perror("Error. Program should receive at least one argument.\n\nExiting program..\n");
         exit(-1);
-    } else {
+    } else if (strcmp(argv[1], "-t") == 0) { // test mode
+        if (argc != 2) {
+            perror("Error. Test mode can not receive arguments.\n\nExiting program..\n");
+            exit(-1);
+        } else {
+            printf("\n_____________________________\n\n.....Entering test mode.....\n\n_____________________________\n\n");
+            run(argc, argv, TEST);
+        }
+    } else { // normal execution
         printf("\nHashing starting..\n\n");
-        run(argc,argv);
+        run(argc, argv, NORMAL);
     }
 }
 
-void run(int argc, char ** argv) {
+void run(int argc, char ** argv, int mode) {
+
+    if (mode == TEST) {
+        run_test_mode();
+        exit(1);
+    }
+
     int parameters_offset = 1;
     int number_files = argc - parameters_offset;
 
@@ -118,7 +132,6 @@ void create_slaves(int number_files) {
 
         if (pid < 0) {
             perror("Error creating child process");
-            //kill_slaves();
             exit(1);
         }
 
@@ -141,4 +154,8 @@ int slave_number_calc(int number_files) {
         return div;
     else
         return limit;
+}
+
+void run_test_mode() {
+    
 }
