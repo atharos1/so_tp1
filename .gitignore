@@ -70,4 +70,6 @@ Hashes.txt
 master
 slave
 
+Binaries/*
+
 \.vscode/

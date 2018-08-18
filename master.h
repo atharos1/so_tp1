@@ -26,7 +26,7 @@ int valid(char * path);
 int slave_number_calc(int number_files);
 void create_slaves(int number_files);
 
-void run(int argc, char ** argv);
+void run(int argc, char ** argv, int mode);
 int post_files(int number_files, int argc, char ** argv, int parameters_offset);
 void run_test_mode();
 

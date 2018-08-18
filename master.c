@@ -157,5 +157,5 @@ int slave_number_calc(int number_files) {
 }
 
 void run_test_mode() {
-    
+ // que deberiamos crear para correr los tests? shared memory? el pipe? todo?
 }
