@@ -22,7 +22,7 @@
 
 int valid(char * path);
 int slave_number_calc(int number_files);
-int create_slaves(int number_files);
+void create_slaves(int number_files);
 
 void run(int argc, char ** argv);
 int post_files(int number_files, int argc, char ** argv, int parameters_offset);

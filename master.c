@@ -49,7 +49,7 @@ void run(int argc, char ** argv) {
         exit(-1);
     }
 
-    int number_slaves = create_slaves(number_files);
+    create_slaves(number_files);
 
     //listen
     int files_processed = 0;
@@ -87,7 +87,6 @@ void run(int argc, char ** argv) {
 
 int post_files(int number_files, int argc, char ** argv, int parameters_offset) {
     int files_posted = 0;
-    char buff[500];
 
     for (int i = parameters_offset; i < argc; i++) {
         if (valid(argv[i])) {
@@ -108,7 +107,7 @@ int valid(char * path) {
         return -1;
 }
 
-int create_slaves(int number_files) {
+void create_slaves(int number_files) {
     int number_slaves = slave_number_calc(number_files);
 
     char * dummyArgs[] = {NULL};
@@ -131,8 +130,6 @@ int create_slaves(int number_files) {
             execv("./slave", dummyArgs);
         }
     }
-
-    return number_slaves;
 }
 
 int slave_number_calc(int number_files) {

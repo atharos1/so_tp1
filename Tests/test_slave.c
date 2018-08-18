@@ -16,7 +16,7 @@ void test_MD5_hashing() {
 }
 
 void given_existing_file() {
-    sprintf(test_path, "sysvmq.c");
+    sprintf(test_path, "pipemng.c");
 }
 
 void when_calculating_hash() {

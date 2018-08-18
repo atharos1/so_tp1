@@ -2,7 +2,6 @@
 #define _TEST_MASTER_H
 
 #include "../master.h"
-#include "../sysvmq.h"
 #include "test_library.h
 
 int test_run();

@@ -2,7 +2,6 @@
 #define _TEST_SLAVE_H
 
 #include "../slave.h"
-#include "../sysvmq.h"
 #include "test_library.h"
 
 int test_run();
