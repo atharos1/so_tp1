@@ -16,7 +16,7 @@ int main() {
     sleep(1);
 
     sem_t * sem = sem_open(SEM_NAME, O_RDWR);
-    int sem_value;
+    
     if (sem == SEM_FAILED) {
         perror("Error opening semaphore");
         exit(EXIT_FAILURE);

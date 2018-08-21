@@ -19,6 +19,8 @@
 #define SLAVE_QUEUE_ID 2
 #define READ 0
 #define WRITE 1
+#define FILES_SLAVES_RATIO 10
+#define SLAVE_LIMIT 15
 
 int is_reg_file(char * path);
 int slave_number_calc(int number_files);

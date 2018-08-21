@@ -133,8 +133,6 @@ void create_slaves(int number_files) {
 }
 
 int slave_number_calc(int number_files) {
-    int FILES_SLAVES_RATIO = 10;
-    int SLAVE_LIMIT = 15;
     int div = number_files / FILES_SLAVES_RATIO + 1;
 
     if (div <= SLAVE_LIMIT)
