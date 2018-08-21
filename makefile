@@ -37,7 +37,7 @@ Binaries/%.o: Tests/%.c
 %.o: %.c
 	$(CC) -c $(CC_FLAGS) $< -o $@
 
-all: binaries_setup hashes_setup clean main_binary slave view
+all: binaries_setup clean main_binary slave view
 
 clean:
 	rm -f Binaries/*
@@ -53,6 +53,3 @@ view: $(VIEW_OBJECTS)
 
 binaries_setup:
 	if [ -d "Binaries" ]; then echo "Binaries directory found, proceeding..."; else mkdir Binaries; fi
-
-hashes_setup:
-	if [ -d "Hashes" ]; then echo "Hashes directory found, proceeding..."; else mkdir Hashes; fi

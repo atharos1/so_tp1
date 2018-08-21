@@ -49,7 +49,7 @@ void run(int argc, char ** argv) {
         exit(-1);
     }
 
-    int number_slaves = create_slaves(number_files);
+    create_slaves(number_files);
 
     //listen
     int files_processed = 0;
@@ -70,7 +70,6 @@ void run(int argc, char ** argv) {
 	    files_processed++;
     }
 
-    int view_connected = (shm->status == CONNECTED);
     shm->status = FINISHED;
 
     fclose(hashes);
@@ -108,7 +107,7 @@ int is_reg_file(char * path) {
     return S_ISREG(path_stat.st_mode);
 }
 
-int create_slaves(int number_files) {
+void create_slaves(int number_files) {
     int number_slaves = slave_number_calc(number_files);
 
     char * dummyArgs[] = {NULL};
@@ -131,8 +130,6 @@ int create_slaves(int number_files) {
             execv("./slave", dummyArgs);
         }
     }
-
-    return number_slaves;
 }
 
 int slave_number_calc(int number_files) {
