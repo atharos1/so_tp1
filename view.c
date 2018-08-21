@@ -13,31 +13,35 @@
 
 int main() {
 
+    sleep(1);
+
     sem_t * sem = sem_open(SEM_NAME, O_RDWR);
     int sem_value;
     if (sem == SEM_FAILED) {
-        perror("Error abriendo semaforo");
+        perror("Error opening semaphore");
         exit(EXIT_FAILURE);
     }
 
     int fd = shm_open(NAME, O_RDWR, 0666);
     if (fd < 0) {
-        perror("shm_open()");
+        perror("Error opening shared memory");
         return EXIT_FAILURE;
     }
 
-    sh_mem * shm = (sh_mem *)mmap(0, SIZE, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
-    
+    sh_mem * shm = (sh_mem *)mmap(0, SHM_SIZE, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
 
-    while(shm->currReadLine < shm->currWriteLine || shm->status == 1) {
+    shm->status = CONNECTED;
+
+    while((shm->currReadLine < shm->currWriteLine && shm->status != ERROR) || shm->status == CONNECTED) {
         sem_wait(sem);
 
         printf("%s\n", shm->str[shm->currReadLine]);
         shm->currReadLine++;
     }
 
-    munmap(shm, SIZE);
+    munmap(shm, SHM_SIZE);
     close(fd);
     shm_unlink(NAME);
+    sem_close(sem);
 
 }

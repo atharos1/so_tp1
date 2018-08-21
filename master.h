@@ -19,15 +19,12 @@
 #define SLAVE_QUEUE_ID 2
 #define READ 0
 #define WRITE 1
-#define TEST 1
-#define NORMAL 0
 
-int valid(char * path);
+int is_reg_file(char * path);
 int slave_number_calc(int number_files);
-void create_slaves(int number_files);
+int create_slaves(int number_files);
 
-void run(int argc, char ** argv, int mode);
+void run(int argc, char ** argv);
 int post_files(int number_files, int argc, char ** argv, int parameters_offset);
-void run_test_mode();
 
 #endif

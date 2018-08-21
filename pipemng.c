@@ -1,16 +1,20 @@
 #include "pipemng.h"
 
 int PipeWrite(int fd, const char * str) {
+  //printf("Escrito: %s\n", str);
   return write(fd, str, strlen(str)+1);
 }
 
 int PipeRead(int fd, char * buffer) {
   int i = 0;
   char c;
+  //printf("Leido: ");
   while(read(fd, &c, 1) > 0 && c != '\0' && c != '\n') {
+    //printf("%c", c);
      buffer[i] = c;
      i++;
   }
+  //putchar('\n');
   
   buffer[i] = 0;
   return i;

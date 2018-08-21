@@ -5,11 +5,11 @@
 #include <stdlib.h>
 #include <ctype.h>
 
-#define MD5_LENGTH 32
-#define BUFFER_SIZE 900
+#include "protocol.h"
+
 #define READ 0
 #define WRITE 1
 
-int calculate_MD5(const char * path, char * buffer);
+void calculate_MD5(const char * path, char * buffer);
 
 #endif
