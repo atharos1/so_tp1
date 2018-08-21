@@ -16,19 +16,19 @@ int main() {
     sleep(1);
 
     sem_t * sem = sem_open(SEM_NAME, O_RDWR);
-    
+
     if (sem == SEM_FAILED) {
         perror("Error opening semaphore");
         exit(EXIT_FAILURE);
     }
 
-    int fd = shm_open(NAME, O_RDWR, 0666);
-    if (fd < 0) {
+    int fd_shm = shm_open(NAME, O_RDWR, 0666);
+    if (fd_shm < 0) {
         perror("Error opening shared memory");
         return EXIT_FAILURE;
     }
 
-    sh_mem * shm = (sh_mem *)mmap(0, SHM_SIZE, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
+    sh_mem * shm = (sh_mem *)mmap(0, SHM_SIZE, PROT_READ | PROT_WRITE, MAP_SHARED, fd_shm, 0);
 
     shm->status = CONNECTED;
 
@@ -40,7 +40,7 @@ int main() {
     }
 
     munmap(shm, SHM_SIZE);
-    close(fd);
+    close(fd_shm);
     shm_unlink(NAME);
     sem_close(sem);
 

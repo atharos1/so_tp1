@@ -1,11 +1,11 @@
 #include "pipemng.h"
 
-int PipeWrite(int fd, const char * str) {
+int pipe_write(int fd, const char * str) {
   //printf("Escrito: %s\n", str);
   return write(fd, str, strlen(str)+1);
 }
 
-int PipeRead(int fd, char * buffer) {
+int pipe_read(int fd, char * buffer) {
   int i = 0;
   char c;
   //printf("Leido: ");

@@ -58,7 +58,7 @@ void run(int argc, char ** argv) {
 
     while (files_processed < number_files) {
 
-        PipeRead(fd2[READ], str);        
+        pipe_read(fd2[READ], str);
 	    fprintf(hashes, "%s\n", str);
 
         if(shm->status != ERROR) {
@@ -92,7 +92,7 @@ int post_files(int number_files, int argc, char ** argv, int parameters_offset) 
 
     for (int i = parameters_offset; i < argc; i++) {
         if (is_reg_file(argv[i])) {
-	    PipeWrite(fd1[WRITE], argv[i]);
+	    pipe_write(fd1[WRITE], argv[i]);
             files_posted++;
         } else {
             printf("\'%s\' is not a regular file. It was ignored.\n\n", argv[i]);

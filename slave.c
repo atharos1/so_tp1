@@ -10,13 +10,13 @@ int main(int argc, const char ** argv) {
 
     char output[FILE_MAX_LENGTH + MD5_LENGTH + 1];
 
-    while (PipeRead(0, path) > 0) {
+    while (pipe_read(0, path) > 0) {
         printf("\n\n%s\n\n", path);
         calculate_MD5(path, md5);
 
-        sprintf(output, "%s:%s", path, md5);
+        sprintf(output, "%s: %s", path, md5);
 
-        PipeWrite(1, output);
+        pipe_write(1, output);
     }
 
     exit(0);

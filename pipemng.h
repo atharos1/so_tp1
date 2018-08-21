@@ -5,7 +5,7 @@
 #include <string.h>
 #include <stdio.h>
 
-int PipeWrite(int fd, const char * str);
-int PipeRead(int fd, char * buffer);
+int pipe_write(int fd, const char * str);
+int pipe_read(int fd, char * buffer);
 
 #endif
