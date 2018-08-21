@@ -69,6 +69,7 @@ CMakeLists.txt
 Hashes.txt
 master
 slave
+view
 
 Binaries/*
 
