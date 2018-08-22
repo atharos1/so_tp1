@@ -8,8 +8,8 @@ int fd2[2];
 
 int main(int argc, char ** argv) {
     if (argc <= 1) { //Argument zero is the program name
-        perror("Error. Program should receive at least one argument.\n\nExiting program..\n");
-        exit(-1);
+        printf("Error. Program should receive at least one argument.\n\nExiting program..\n");
+        exit(EXIT_FAILURE);
     } else {
         printf("\nHashing starting..\n\n");
         run(argc,argv);
@@ -22,14 +22,14 @@ void run(int argc, char ** argv) {
 
     sem_t * slave_sem = sem_open (SLAVE_SEM_NAME, O_CREAT | O_EXCL, 0644, 1); //Inicializamos semaforo en 1, para garantizar acceso unitario al pipe de escritura los esclavos
     if(slave_sem == SEM_FAILED) {
-        perror("Semaforo principal no se puede inicializar");
-        exit(1);
+        printf("Principal semaphore could not be initialized.\n\nExiting program..\n");
+        exit(EXIT_FAILURE);
     }
 
     int fd = shm_open(NAME, O_CREAT | O_EXCL | O_RDWR, 0600);
     if (fd < 0) {
-        perror("shm_open()");
-        exit(-1);
+        printf("shm_open()");
+        exit(EXIT_FAILURE);
     }
     ftruncate(fd, SHM_SIZE);
     sh_mem *shm = (sh_mem *)mmap(0, SHM_SIZE, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0); //Inicializamos la memoria compartida
@@ -39,7 +39,7 @@ void run(int argc, char ** argv) {
 
     sem_t * sem = sem_open (SEM_NAME, O_CREAT | O_EXCL, 0644, 0); 
     if(sem == SEM_FAILED) {
-        perror("Semaforo no se puede inicializar");
+        printf("Semaphore could not be initialized.\n");
         shm->status = ERROR; //No usamos la memoria compartida, no puedo sincronizar
     }
 
@@ -53,15 +53,18 @@ void run(int argc, char ** argv) {
     close(fd1[WRITE]); //Garantizamos que esclavos lean EOF cuando el pipe quede vacío
 
     if (number_files <= 0) {
-        perror("Error. No files are hashable.\n\nExiting program..\n");
-        exit(-1);
+        printf("Error. No files are hashable.\n\nExiting program..\n");
+        exit(EXIT_FAILURE);
+    } else if (number_files > MAX_FILES) {
+        printf("Error. Program has a limit of %d files to process.\n\nExiting program..\n",MAX_FILES);
+        exit(EXIT_FAILURE);
     }
 
     create_slaves(number_files);
 
     //listen
     int files_processed = 0;
-    FILE * hashes = fopen("./Hashes.txt","a"); //"a" for appending at the end of file
+    FILE * hashes = fopen("./Hashes.txt","w");
     char str[FILE_MAX_LENGTH + MD5_LENGTH + 1];
 
     while (files_processed < number_files) { //Proceso todos los archivos verificados previamente
@@ -97,8 +100,6 @@ void run(int argc, char ** argv) {
         sem_unlink(SEM_NAME);
         sem_close(sem);
     }
-        
-
 }
 
 int post_files(int number_files, int argc, char ** argv, int parameters_offset) { //Verificamos que el archivo sea válido para generar hash y lo agregamos a la cola de pendientes (pipe)
@@ -131,9 +132,9 @@ void create_slaves(int number_files) {
         pid = fork();
 
         if (pid < 0) {
-            perror("Error creating child process");
+            printf("Error creating child process.\n\nExiting program..\n");
             //TODO: kill_slaves();
-            exit(1);
+            exit(EXIT_FAILURE);
         }
 
         if (pid == 0)  { //Redireccionamos salida y entrada del hijo a los pipes y cargamos el esclavo

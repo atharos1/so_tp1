@@ -6,14 +6,14 @@ int main(int argc, const char ** argv) {
 
     sem_t * slave_sem = sem_open(SLAVE_SEM_NAME, O_RDWR); //Semaforo para evitar accesos simultaneos al pipe de salida
     if (slave_sem == SEM_FAILED) {
-        perror("Error opening semaphore");
+        printf("Error opening semaphore.\n\nExiting program..\n");
         exit(EXIT_FAILURE);
     }
 
     char path[FILE_MAX_LENGTH];
     char md5[MD5_LENGTH+1];
 
-    char output[FILE_MAX_LENGTH + MD5_LENGTH + 1];
+    char output[FILE_MAX_LENGTH + MD5_LENGTH + 3];
 
     //sem_post(slave_sem);
 
@@ -36,9 +36,9 @@ void calculate_MD5(const char * path, char * md5) { //Calcula MD5 usando md5sum.
 
     FILE * fp = popen(command,"r");
     if (fp == NULL) {
-        perror("Error. Could not create file descriptor.\n\nExiting program..\n");
+        printf("Error. Could not create file descriptor.\n\nExiting program..\n");
         pclose(fp);
-        exit(-1);
+        exit(EXIT_FAILURE);
     }
 
     fgets(md5, MD5_LENGTH, fp);

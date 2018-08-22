@@ -15,14 +15,14 @@ int main() {
     sem_t * sem = sem_open(SEM_NAME, O_RDWR); //Semaforo para evitar espera activa mientras se esperan nuevos elementos a imprimir
 
     if (sem == SEM_FAILED) {
-        perror("Error opening semaphore");
+        printf("Error opening semaphore.\n\nExiting program..\n");
         exit(EXIT_FAILURE);
     }
 
     int fd_shm = shm_open(NAME, O_RDWR, 0666);
     if (fd_shm < 0) {
-        perror("Error opening shared memory");
-        return EXIT_FAILURE;
+        printf("Error opening shared memory.\n\nExiting program..\n");
+        exit(EXIT_FAILURE);
     }
 
     sh_mem * shm = (sh_mem *)mmap(0, SHM_SIZE, PROT_READ | PROT_WRITE, MAP_SHARED, fd_shm, 0); //Puntero a la estructura compartida

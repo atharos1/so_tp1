@@ -1,7 +1,7 @@
 ### SET UP ###
 
 CC = gcc
-CC_FLAGS = -Wall -pthread
+CC_FLAGS = -Wall -pthread -std=gnu11
 LINKER_OPTIONS = -lrt -lm -g -pthread
 
 SOURCES = $(wildcard *.c)
