@@ -6,10 +6,7 @@
 #include <string.h>
 
 void check_is_not_null(void * pointer);
-void check_strings_equal(char * s1, char * s2);
-void then_success();
 void passed();
 void failed(char * error);
-void not_implemented();
 
 #endif
