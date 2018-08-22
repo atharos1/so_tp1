@@ -2,8 +2,8 @@
 #include "pipemng.h"
 #include "protocol.h"
 
-int fd1[2];
-int fd2[2];
+int master_fd[2];
+int slave_fd[2];
 
 int main(int argc, char ** argv) {
     if (argc <= 1) { //Argument zero is the program name
@@ -33,12 +33,12 @@ void run(int argc, char ** argv, int mode) {
     int parameters_offset = 1;
     int number_files = argc - parameters_offset;
 
-    pipe(fd1);
-    pipe(fd2);
+    pipe(master_fd);
+    pipe(slave_fd);
 
     number_files = post_files(number_files, argc, argv, parameters_offset);
 
-    close(fd1[WRITE]); //So that slaves read EOF when empty pipe
+    close(master_fd[WRITE]); //So that slaves read EOF when empty pipe
 
     if (number_files <= 0) {
         printf("Error. No files are hashable.\n\nExiting program..\n");
@@ -82,7 +82,7 @@ void run(int argc, char ** argv, int mode) {
 
     while (files_processed < number_files) { //Process every file previously verified
 
-        pipe_read(fd2[READ], str); //Read output from slave
+        pipe_read(slave_fd[READ], str); //Read output from slave
 	    fprintf(hashes, "%s\n", str);
 
         if(shm->status != ERROR) {
@@ -120,7 +120,7 @@ int post_files(int number_files, int argc, char ** argv, int parameters_offset) 
 
     for (int i = parameters_offset; i < argc; i++) {
         if (is_valid(argv[i])) { //Verify if file is valid to generate hash
-	    pipe_write(fd1[WRITE], argv[i]); //File added to pending queue (pipe)
+	    pipe_write(master_fd[WRITE], argv[i]); //File added to pending queue (pipe)
             files_posted++;
         } else {
             printf("\'%s\' was ignored.\n\n", argv[i]);
@@ -152,10 +152,10 @@ void create_slaves(int number_files) {
         }
 
         if (pid == 0)  {
-            dup2(fd1[READ], 0); //Redirect output and input of slave to pipes
-            dup2(fd2[WRITE], 1);
-            close(fd1[WRITE]); //Close unnecessary ends of pipe
-            close(fd2[READ]);
+            dup2(master_fd[READ], 0); //Redirect output and input of slave to pipes
+            dup2(slave_fd[WRITE], 1);
+            close(master_fd[WRITE]); //Close unnecessary ends of pipe
+            close(slave_fd[READ]);
             execv("./Binaries/slave", args);
         }
     }
