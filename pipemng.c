@@ -25,7 +25,6 @@ int pipe_write_onebyone(int fd, const char * str, sem_t * semaphore) {
   sem_post(semaphore);
 
   return ret;
-
 }
 
 int pipe_read_onebyone(int fd, char * buffer, sem_t * semaphore) {
@@ -34,4 +33,4 @@ int pipe_read_onebyone(int fd, char * buffer, sem_t * semaphore) {
   sem_post(semaphore);
 
   return ret;
-};
+}

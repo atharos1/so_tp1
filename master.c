@@ -10,13 +10,27 @@ int main(int argc, char ** argv) {
     if (argc <= 1) { //Argument zero is the program name
         printf("Error. Program should receive at least one argument.\n\nExiting program..\n");
         exit(EXIT_FAILURE);
-    } else {
+    } else if (strcmp(argv[1], "-t") == 0) { //Test mode
+        if (argc != 2) {
+            printf("Error. Test mode can not receive arguments.\n\nExiting program..\n");
+            exit(EXIT_FAILURE);
+        } else {
+            printf("\n_____________________________\n\n.....Entering test mode.....\n\n_____________________________\n\n");
+            run(argc, argv, TEST);
+        }
+    } else //Normal execution
         printf("\nHashing starting..\n\n");
-        run(argc,argv);
+        run(argc, argv, NORMAL);
     }
 }
 
-void run(int argc, char ** argv) {
+void run(int argc, char ** argv, int mode) {
+
+    if (mode == TEST) {
+        run_test_mode();
+        exit(1);
+    }
+
     int parameters_offset = 1;
     int number_files = argc - parameters_offset;
 
@@ -110,7 +124,7 @@ int post_files(int number_files, int argc, char ** argv, int parameters_offset) 
 	    pipe_write(fd1[WRITE], argv[i]); //File added to pending queue (pipe)
             files_posted++;
         } else {
-            printf("\'%s\' is not a regular file. It was ignored.\n\n", argv[i]);
+            printf("\'%s\' was ignored.\n\n", argv[i]);
         }
     }
     return files_posted;
@@ -118,7 +132,8 @@ int post_files(int number_files, int argc, char ** argv, int parameters_offset) 
 
 int is_valid(char * path) {
     struct stat path_stat;
-    stat(path, &path_stat); // Fails if search permission is denied for one of the directories in the path
+    if (stat(path, &path_stat) == -1 ) // Fails if search permission is denied for one of the directories in the path
+        return -1;
     return S_ISREG(path_stat.st_mode);
 }
 
@@ -154,4 +169,8 @@ int slave_number_calc(int number_files) {
         return div;
     else
         return SLAVE_LIMIT;
+}
+
+void run_test_mode() {
+
 }

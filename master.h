@@ -15,6 +15,8 @@
 #define SLAVE_QUEUE_ID 2
 #define READ 0
 #define WRITE 1
+#define TEST 1
+#define NORMAL 0
 #define FILES_SLAVES_RATIO 10
 #define SLAVE_LIMIT 15
 
@@ -22,7 +24,8 @@ int is_valid(char * path);
 int slave_number_calc(int number_files);
 void create_slaves(int number_files);
 
-void run(int argc, char ** argv);
+void run(int argc, char ** argv, int mode);
+void run_test_mode();
 int post_files(int number_files, int argc, char ** argv, int parameters_offset);
 
 #endif

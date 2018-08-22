@@ -12,7 +12,7 @@ int main() {
 
     sleep(1);
 
-    sem_t * sem = sem_open(SEM_NAME, O_RDWR); //Semaforo para evitar espera activa mientras se esperan nuevos elementos a imprimir
+    sem_t * sem = sem_open(SEM_NAME, O_RDWR); //Semaphore to avoid active wait while waiting for new elements to print
 
     if (sem == SEM_FAILED) {
         printf("Error opening semaphore.\n\nExiting program..\n");
@@ -25,18 +25,18 @@ int main() {
         exit(EXIT_FAILURE);
     }
 
-    sh_mem * shm = (sh_mem *)mmap(0, SHM_SIZE, PROT_READ | PROT_WRITE, MAP_SHARED, fd_shm, 0); //Puntero a la estructura compartida
+    sh_mem * shm = (sh_mem *)mmap(0, SHM_SIZE, PROT_READ | PROT_WRITE, MAP_SHARED, fd_shm, 0); //Pointer to shared structure
 
-    shm->status = CONNECTED; //Aviso al master que me conecté
+    shm->status = CONNECTED; //Let know master that view was connected
 
-    while((shm->currReadLine < shm->currWriteLine && shm->status != ERROR) || shm->status == CONNECTED) { //Mientras el master este trabajando o mientras tenga cosas pendientes en el buffer
-        sem_wait(sem);//Evito espera activa. Valor del semaforo corresponde a cantidad de elementos en buffer pendientes de impresion
+    while((shm->currReadLine < shm->currWriteLine && shm->status != ERROR) || shm->status == CONNECTED) { //While master is working or there are pending elements in buffer
+        sem_wait(sem);//Avoid active wait. Semaphore value corresponds to number of pending elements in buffer to print
 
         printf("%s\n", shm->str[shm->currReadLine]);
         shm->currReadLine++;
     }
 
-    //Liberamos recursos nosotros en vez del master porque terminaremos después
+    //Free resources in view instead of master because view finishes after master
     munmap(shm, SHM_SIZE);
     close(fd_shm);
     shm_unlink(NAME);
