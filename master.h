@@ -18,7 +18,7 @@
 #define FILES_SLAVES_RATIO 10
 #define SLAVE_LIMIT 15
 
-int is_reg_file(char * path);
+int is_valid(char * path);
 int slave_number_calc(int number_files);
 void create_slaves(int number_files);
 
