@@ -4,6 +4,7 @@
 
 int master_fd[2];
 int slave_fd[2];
+int slavesPID[SLAVE_LIMIT];
 
 int main(int argc, char ** argv) {
     if (argc <= 1) { //Argument zero is the program name
@@ -73,7 +74,7 @@ void run(int argc, char ** argv, int mode) {
 
     sleep(2); //Time for view to connect
 
-    create_slaves(number_files);
+    int number_slaves = create_slaves(number_files);
 
     //listen
     int files_processed = 0;
@@ -83,7 +84,7 @@ void run(int argc, char ** argv, int mode) {
     while (files_processed < number_files) { //Process every file previously verified
 
         pipe_read(slave_fd[READ], str); //Read output from slave
-	    fprintf(hashes, "%s\n", str);
+	fprintf(hashes, "%s\n", str);
 
         if(shm->status != ERROR) {
             strcpy(shm->str[shm->currWriteLine], str); //Transfer slave output to shared memory
@@ -91,7 +92,7 @@ void run(int argc, char ** argv, int mode) {
             sem_post(sem); //Increment semaphore
         }
         
-	    files_processed++;
+	files_processed++;
     }
 
 
@@ -99,6 +100,10 @@ void run(int argc, char ** argv, int mode) {
 
     //Free resources if it corresponds
     //TODO: FALTA CERRAR BIEN LOS PIPES
+    close(master_fd[READ]);
+    close(slave_fd[READ]);
+    close(slave_fd[WRITE]);
+
     sem_unlink(SLAVE_SEM_NAME);
     sem_close(slave_sem);
 
@@ -112,6 +117,11 @@ void run(int argc, char ** argv, int mode) {
         shm_unlink(NAME);
         sem_unlink(SEM_NAME);
         sem_close(sem);
+    }
+
+    int ret;
+    for (int i = 0; i < number_slaves; i++) {
+        waitpid(slavesPID[i], &ret, 0);
     }
 }
 
@@ -136,7 +146,7 @@ int is_valid(char * path) {
     return S_ISREG(path_stat.st_mode);
 }
 
-void create_slaves(int number_files) {
+int create_slaves(int number_files) {
     int number_slaves = slave_number_calc(number_files);
 
     char * args[] = {NULL};
@@ -147,7 +157,7 @@ void create_slaves(int number_files) {
 
         if (pid < 0) {
             printf("Error creating child process.\n\nExiting program..\n");
-            //TODO: kill_slaves();
+            kill_slaves(i);
             exit(EXIT_FAILURE);
         }
 
@@ -158,7 +168,11 @@ void create_slaves(int number_files) {
             close(slave_fd[READ]);
             execv("./Binaries/slave", args);
         }
+
+        slavesPID[i] = pid;
     }
+
+    return number_slaves;
 }
 
 int slave_number_calc(int number_files) {
@@ -168,6 +182,12 @@ int slave_number_calc(int number_files) {
         return div;
     else
         return SLAVE_LIMIT;
+}
+
+void kill_slaves(int n) {
+    for(int i = 0; i < n; i++) {
+        kill(slavesPID[i], 9);
+    }
 }
 
 void run_test_mode() {
