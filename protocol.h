@@ -1,8 +1,15 @@
 #ifndef PROTOCOL_H
 #define PROTOCOL_H
 
+#include <semaphore.h>
+#include <fcntl.h>
+#include <sys/mman.h>
+#include <sys/shm.h>
+
 #define NAME "/so.tp.tp1"
 #define SEM_NAME "/so.tp.tp1"
+
+#define SLAVE_SEM_NAME "/so.tp.tp1.slave" //NO SE SI VA ACA
 
 #define FILE_MAX_LENGTH 200
 #define MD5_LENGTH 32

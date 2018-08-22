@@ -1,7 +1,6 @@
 #include "master.h"
 #include "pipemng.h"
 #include "protocol.h"
-#include <semaphore.h>
 
 //int queue_id;
 int fd1[2];
@@ -20,6 +19,12 @@ int main(int argc, char ** argv) {
 void run(int argc, char ** argv) {
     int parameters_offset = 1;
     int number_files = argc - parameters_offset;
+
+    sem_t * slave_sem = sem_open (SLAVE_SEM_NAME, O_CREAT | O_EXCL, 0644, 1); //Inicializamos semaforo en 1
+    if(slave_sem == SEM_FAILED) {
+        perror("Semaforo principal no se puede inicializar");
+        exit(1);
+    }
 
     int fd = shm_open(NAME, O_CREAT | O_EXCL | O_RDWR, 0600);
     if (fd < 0) {
@@ -43,6 +48,8 @@ void run(int argc, char ** argv) {
     pipe(fd2);
 
     number_files = post_files(number_files, argc, argv, parameters_offset);
+
+    close(fd1[WRITE]);
 
     if (number_files <= 0) {
         perror("Error. No files are hashable.\n\nExiting program..\n");
@@ -70,7 +77,11 @@ void run(int argc, char ** argv) {
 	    files_processed++;
     }
 
+
     shm->status = FINISHED;
+
+    sem_unlink(SLAVE_SEM_NAME);
+    sem_close(slave_sem);
 
     fclose(hashes);
     printf("Hashes written to \'./Hashes.txt\'\n");
@@ -114,6 +125,7 @@ void create_slaves(int number_files) {
     pid_t pid;
 
     for (int i = 0; i < number_slaves; i++) {
+        //pipe_write(fd1[WRITE], "");
         pid = fork();
 
         if (pid < 0) {

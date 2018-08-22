@@ -8,26 +8,29 @@ int pipe_write(int fd, const char * str) {
 int pipe_read(int fd, char * buffer) {
   int i = 0;
   char c;
-  //printf("Leido: ");
   while(read(fd, &c, 1) > 0 && c != '\0' && c != '\n') {
-    //printf("%c", c);
      buffer[i] = c;
      i++;
   }
-  //putchar('\n');
   
   buffer[i] = 0;
   return i;
-  /*int fd2 = dup(fd);
-  FILE * fp = fdopen(fd2,"r");
-  int ret = fscanf(fp, "%s", buffer);
-  buffer[1] = 0;
-  printf("%s\n", buffer);
-  fclose(fp);
-  return ret;*/
-  /*int ret = read(fd, buffer, 10);
-  buffer[10] = 0;
-  printf("%s\n", buffer);
-  return ret;
-  ;*/
 }
+
+int pipe_write_onebyone(int fd, const char * str, sem_t * semaphore) {
+
+  sem_wait(semaphore);
+  int ret = pipe_write(fd, str);
+  sem_post(semaphore);
+
+  return ret;
+
+}
+
+int pipe_read_onebyone(int fd, char * buffer, sem_t * semaphore) {
+  sem_wait(semaphore);
+  int ret = pipe_read(fd, buffer);
+  sem_post(semaphore);
+
+  return ret;
+};

@@ -8,11 +8,7 @@
 #include <sys/ipc.h>
 #include <sys/stat.h>
 #include <unistd.h>
-#include <sys/shm.h>
 #include <semaphore.h>
-
-#include <fcntl.h>
-#include <sys/mman.h>
 
 #define ID 57526
 #define MASTER_QUEUE_ID 1
