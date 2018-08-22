@@ -1,9 +1,9 @@
 #include "test_slave.h"
 
-char test_path[FILENAME_MAX];
-char buffer[BUFFER_SIZE];
+char test_path[20];
+char buffer[60];
 
-int test_run() {
+int slave_test_run() {
     printf("Test MD5 Hashing:");
     test_MD5_hashing();
     return 0;

@@ -9,6 +9,7 @@
 #include <sys/stat.h>
 #include <unistd.h>
 #include <semaphore.h>
+#include "./Tests/test_master.h"
 
 #define ID 57526
 #define MASTER_QUEUE_ID 1

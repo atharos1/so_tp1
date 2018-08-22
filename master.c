@@ -2,7 +2,6 @@
 #include "pipemng.h"
 #include "protocol.h"
 
-//TODO: NO TIENEN PORQUE SER GLOBALES
 int fd1[2];
 int fd2[2];
 
@@ -18,7 +17,7 @@ int main(int argc, char ** argv) {
             printf("\n_____________________________\n\n.....Entering test mode.....\n\n_____________________________\n\n");
             run(argc, argv, TEST);
         }
-    } else //Normal execution
+    } else { //Normal execution
         printf("\nHashing starting..\n\n");
         run(argc, argv, NORMAL);
     }
@@ -140,7 +139,7 @@ int is_valid(char * path) {
 void create_slaves(int number_files) {
     int number_slaves = slave_number_calc(number_files);
 
-    char * dummyArgs[] = {NULL}; //Mandatory for execv
+    char * args[] = {NULL};
     pid_t pid;
 
     for (int i = 0; i < number_slaves; i++) {
@@ -157,7 +156,7 @@ void create_slaves(int number_files) {
             dup2(fd2[WRITE], 1);
             close(fd1[WRITE]); //Close unnecessary ends of pipe
             close(fd2[READ]);
-            execv("./slave", dummyArgs);
+            execv("./Binaries/slave", args);
         }
     }
 }
@@ -172,5 +171,8 @@ int slave_number_calc(int number_files) {
 }
 
 void run_test_mode() {
-
+    master_test_run();
+    printf("cool");
+    char * args[] = {"./Binaries/slave", "-t"};
+    execv("./Binaries/slave", args);
 }

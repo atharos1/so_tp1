@@ -74,3 +74,5 @@ view
 Binaries/*
 
 \.vscode/
+
+\.bash_history

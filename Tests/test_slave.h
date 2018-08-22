@@ -4,7 +4,7 @@
 #include "../slave.h"
 #include "test_library.h"
 
-int test_run();
+int slave_test_run();
 void test_MD5_hashing();
 void given_existing_file();
 void when_calculating_hash();

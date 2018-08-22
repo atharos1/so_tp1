@@ -2,12 +2,13 @@
 #define _TEST_MASTER_H
 
 #include "../master.h"
-#include "test_library.h
+#include "../pipemng.h"
+#include "test_library.h"
 
-int test_run();
-void when_creating_queue();
-void then_queue_is_created();
-void when_adding_item_to_queue();
-void then_queue_is_not_empty();
+int master_test_run();
+void when_creating_pipe();
+void then_pipe_is_created();
+void when_adding_item_to_pipe();
+void then_pipe_is_not_empty();
 
 #endif
