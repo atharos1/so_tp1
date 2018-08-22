@@ -5,7 +5,6 @@
 #include <string.h>
 #include <stdio.h>
 #include <semaphore.h>
-#include <sys/file.h>
 
 int pipe_write(int fd, const char * str);
 int pipe_read(int fd, char * buffer);
