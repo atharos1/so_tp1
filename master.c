@@ -99,7 +99,6 @@ void run(int argc, char ** argv, int mode) {
     shm->status = FINISHED; //Alert view that there will no be more files added to the buffer
 
     //Free resources if it corresponds
-    //TODO: FALTA CERRAR BIEN LOS PIPES
     close(master_fd[READ]);
     close(slave_fd[READ]);
     close(slave_fd[WRITE]);
