@@ -2,7 +2,7 @@
 #include "pipemng.h"
 #include "protocol.h"
 
-//int queue_id;
+//TODO: NO TIENEN PORQUE SER GLOBALES
 int fd1[2];
 int fd2[2];
 
@@ -20,7 +20,7 @@ void run(int argc, char ** argv) {
     int parameters_offset = 1;
     int number_files = argc - parameters_offset;
 
-    sem_t * slave_sem = sem_open (SLAVE_SEM_NAME, O_CREAT | O_EXCL, 0644, 1); //Inicializamos semaforo en 1
+    sem_t * slave_sem = sem_open (SLAVE_SEM_NAME, O_CREAT | O_EXCL, 0644, 1); //Inicializamos semaforo en 1, para garantizar acceso unitario al pipe de escritura los esclavos
     if(slave_sem == SEM_FAILED) {
         perror("Semaforo principal no se puede inicializar");
         exit(1);
@@ -29,9 +29,10 @@ void run(int argc, char ** argv) {
     int fd = shm_open(NAME, O_CREAT | O_EXCL | O_RDWR, 0600);
     if (fd < 0) {
         perror("shm_open()");
+        exit(-1);
     }
     ftruncate(fd, SHM_SIZE);
-    sh_mem *shm = (sh_mem *)mmap(0, SHM_SIZE, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
+    sh_mem *shm = (sh_mem *)mmap(0, SHM_SIZE, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0); //Inicializamos la memoria compartida
     shm->status = AWAITING_CONNECTION;
     shm->currReadLine = 0;
     shm->currWriteLine = 0;
@@ -39,7 +40,7 @@ void run(int argc, char ** argv) {
     sem_t * sem = sem_open (SEM_NAME, O_CREAT | O_EXCL, 0644, 0); 
     if(sem == SEM_FAILED) {
         perror("Semaforo no se puede inicializar");
-        shm->status = ERROR; //No usemos la memoria compartida, no puedo sincronizar
+        shm->status = ERROR; //No usamos la memoria compartida, no puedo sincronizar
     }
 
     sleep(3); //Le damos tiempo a la vista para que se conecte
@@ -47,9 +48,9 @@ void run(int argc, char ** argv) {
     pipe(fd1);
     pipe(fd2);
 
-    number_files = post_files(number_files, argc, argv, parameters_offset);
+    number_files = post_files(number_files, argc, argv, parameters_offset); //TODO: ABORTAR SI SUPERA MAX_FILES
 
-    close(fd1[WRITE]);
+    close(fd1[WRITE]); //Garantizamos que esclavos lean EOF cuando el pipe quede vacío
 
     if (number_files <= 0) {
         perror("Error. No files are hashable.\n\nExiting program..\n");
@@ -63,13 +64,13 @@ void run(int argc, char ** argv) {
     FILE * hashes = fopen("./Hashes.txt","a"); //"a" for appending at the end of file
     char str[FILE_MAX_LENGTH + MD5_LENGTH + 1];
 
-    while (files_processed < number_files) {
+    while (files_processed < number_files) { //Proceso todos los archivos verificados previamente
 
-        pipe_read(fd2[READ], str);
+        pipe_read(fd2[READ], str); //Leo salida del esclavo
 	    fprintf(hashes, "%s\n", str);
 
         if(shm->status != ERROR) {
-            strcpy(shm->str[shm->currWriteLine], str);
+            strcpy(shm->str[shm->currWriteLine], str); //Copio salida del esclavo a memoria compartida
             shm->currWriteLine++;
             sem_post(sem); //Incremento el semáforo
         }
@@ -78,8 +79,10 @@ void run(int argc, char ** argv) {
     }
 
 
-    shm->status = FINISHED;
+    shm->status = FINISHED; //Indicamos a la vista que no se agregarán más archivos al buffer
 
+    //Liberamos recursos si nos corresponde
+    //TODO: FALTA CERRAR BIEN LOS PIPES
     sem_unlink(SLAVE_SEM_NAME);
     sem_close(slave_sem);
 
@@ -98,7 +101,7 @@ void run(int argc, char ** argv) {
 
 }
 
-int post_files(int number_files, int argc, char ** argv, int parameters_offset) {
+int post_files(int number_files, int argc, char ** argv, int parameters_offset) { //Verificamos que el archivo sea válido para generar hash y lo agregamos a la cola de pendientes (pipe)
     int files_posted = 0;
 
     for (int i = parameters_offset; i < argc; i++) {
@@ -121,24 +124,23 @@ int is_reg_file(char * path) {
 void create_slaves(int number_files) {
     int number_slaves = slave_number_calc(number_files);
 
-    char * dummyArgs[] = {NULL};
+    char * dummyArgs[] = {NULL}; //Obligatorio para execv
     pid_t pid;
 
     for (int i = 0; i < number_slaves; i++) {
-        //pipe_write(fd1[WRITE], "");
         pid = fork();
 
         if (pid < 0) {
             perror("Error creating child process");
-            //kill_slaves();
+            //TODO: kill_slaves();
             exit(1);
         }
 
-        if (pid == 0)  {
-	    dup2(fd1[READ], 0);
-	    dup2(fd2[WRITE], 1);
-	    close(fd1[WRITE]);
-	    close(fd2[READ]);
+        if (pid == 0)  { //Redireccionamos salida y entrada del hijo a los pipes y cargamos el esclavo
+            dup2(fd1[READ], 0);
+            dup2(fd2[WRITE], 1);
+            close(fd1[WRITE]); //Cerramos extremos de pipe innecesarios
+            close(fd2[READ]);
             execv("./slave", dummyArgs);
         }
     }

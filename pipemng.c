@@ -1,7 +1,6 @@
 #include "pipemng.h"
 
 int pipe_write(int fd, const char * str) {
-  //printf("Escrito: %s\n", str);
   return write(fd, str, strlen(str)+1);
 }
 
@@ -17,7 +16,9 @@ int pipe_read(int fd, char * buffer) {
   return i;
 }
 
-int pipe_write_onebyone(int fd, const char * str, sem_t * semaphore) {
+//Funciones que esperan a que el fd no se encuentre accedido y escriben o leen. Luego liberan el recurso.
+//Se presume semaphore inicializado en uno, y oscilará entre uno y 0 segun el recurso se encuentre o no en uso.
+int pipe_write_onebyone(int fd, const char * str, sem_t * semaphore) { 
 
   sem_wait(semaphore);
   int ret = pipe_write(fd, str);

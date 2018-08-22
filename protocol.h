@@ -6,8 +6,8 @@
 #include <sys/mman.h>
 #include <sys/shm.h>
 
-#define NAME "/so.tp.tp1"
-#define SEM_NAME "/so.tp.tp1"
+#define NAME "/so.tp.tp1" //Id de la memoria compartida
+#define SEM_NAME "/so.tp.tp1" //Id semaforo de la view
 
 #define SLAVE_SEM_NAME "/so.tp.tp1.slave" //NO SE SI VA ACA
 
@@ -16,7 +16,7 @@
 
 #define MAX_FILES 220
 
-typedef enum {
+typedef enum { //Estados de la conexion master-view
     ERROR,
     AWAITING_CONNECTION,
     CONNECTED,
@@ -28,7 +28,7 @@ typedef struct sharedMemory {
 	shm_status status;
 	int currReadLine;
 	int currWriteLine;
-} sh_mem;
+} sh_mem; //Estructura de memoria compartida
 
 #define SHM_SIZE sizeof(sh_mem)
 
