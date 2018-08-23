@@ -6,7 +6,7 @@ $ make
 
 Para ejecución se debe inicializar los procesos maestro y, de manera opcional, vista, aportando como parámetro los paths con los que se desea trabajar, de la siguiente manera:
 
-$ ./Binaries/hash “path”
+$ ./Binaries/hash “path” &
 $ ./Binaries/view
 
 O también se puede correr utilizando un pipe:
