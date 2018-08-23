@@ -16,13 +16,8 @@ int pipe_read(int fd, char * buffer) {
   return i;
 }
 
-//Funciones que esperan a que el fd no se encuentre accedido y escriben o leen. Luego liberan el recurso.
+//Funcion que espera a que el fd no se encuentre accedido y lee. Luego libera el recurso.
 //Se presume semaphore inicializado en uno, y oscilará entre uno y 0 segun el recurso se encuentre o no en uso.
-int pipe_write_onebyone(int fd, const char * str, sem_t * semaphore) { 
-  int ret = pipe_write(fd, str);
-  return ret;
-}
-
 int pipe_read_onebyone(int fd, char * buffer, sem_t * semaphore) {
   sem_wait(semaphore);
   int ret = pipe_read(fd, buffer);

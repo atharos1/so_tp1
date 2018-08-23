@@ -30,7 +30,7 @@ int main(int argc, const char ** argv) {
 
         sprintf(output, "%s: %s", path, md5); //Output has format <file>: <hash>
 
-        pipe_write_onebyone(1, output, slave_sem);
+        pipe_write(1, output);
     }
     exit(0);
 }
